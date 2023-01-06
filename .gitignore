@@ -10,6 +10,7 @@ nmap-5.51.6/
 htmlcov/
 python_nmap.egg-info/
 scanme_output.xml
+test_trace.xml
 .coverage
 .tox
 requirements.txt
@@ -24,3 +25,5 @@ Thumbs.db
 *\#
 .\#*
 web2
+venv/
+lib/

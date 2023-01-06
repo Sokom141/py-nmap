@@ -57,12 +57,13 @@ import shlex
 import subprocess
 import sys
 from multiprocessing import Process
+from typing import List
 from xml.etree import ElementTree as ET
 
 
 __author__ = "Alexandre Norman (norman@xael.org)"
-__version__ = "0.7.1"
-__last_modification__ = "2021.10.26"
+__version__ = "0.7.2"
+__last_modification__ = "2022.12.15"
 
 
 ############################################################################
@@ -197,6 +198,14 @@ class PortScanner(object):
             self.scan(hosts, arguments="-sL -6")
 
         return self.all_hosts()
+
+    def load_from_file(self, file_path):
+        with open(file_path, 'r') as f:
+            assert(
+                    os.path.splitext(file_path)[-1].lower() == ".xml"
+            ), f"Wrong file type for [file_path], should be a .xml [was {file_path}]"
+            self._nmap_last_output = f.read()
+            return self.analyse_nmap_xml_scan(nmap_xml_output=self._nmap_last_output)
 
     def scan(  # NOQA: CFQ001, C901
         self, hosts="127.0.0.1", ports=None, arguments="-sV", sudo=False, timeout=0
@@ -445,6 +454,16 @@ class PortScanner(object):
                     "seconds": dstatus.get("seconds"),
                     "lastboot": dstatus.get("lastboot"),
                 }
+
+            for dtrace in dhost.findall("trace"):
+                hops = []
+                for dhop in dtrace.findall("hop"):
+                    hops.append({
+                        "ip": dhop.get("ipaddr"),
+                        "ttl": dhop.get("ttl"),
+                        "rtt": dhop.get("rtt"),
+                        })
+                scan_result["scan"][host]["trace"] = hops
             for dport in dhost.findall("ports/port"):
                 # protocol
                 proto = dport.get("protocol")
@@ -599,7 +618,7 @@ class PortScanner(object):
             ), f"Wrong type for [host], should be a string [was {type(host)}]"
         return self._scan_result["scan"][host]
 
-    def all_hosts(self):
+    def all_hosts(self) -> List:
         """
         returns a sorted list of all hosts
         """
@@ -1165,6 +1184,16 @@ class PortScannerHostDict(dict):
         ), f"Wrong type for [port], should be an int [was {type(port)}]"
 
         return self["sctp"][port]
+
+    def trace(self):
+        """
+        :returns: all traceroute info
+
+        """
+        if "trace" in self:
+            return self["trace"]
+        else:
+            return []
 
 
 ############################################################################
