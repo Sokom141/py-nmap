@@ -63,7 +63,7 @@ from xml.etree import ElementTree as ET
 
 
 __author__ = "Alexandre Norman (norman@xael.org)"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 __last_modification__ = "2023.01.25"
 
 
