@@ -20,6 +20,7 @@ Contributors:
 * Robert Bost
 * David Peltier
 * Ed Jones
+* Mattia Pizzolitto
 
 Licence: GPL v3 or any later version for python-nmap
 
@@ -63,7 +64,7 @@ from xml.etree import ElementTree as ET
 
 __author__ = "Alexandre Norman (norman@xael.org)"
 __version__ = "0.7.2"
-__last_modification__ = "2022.12.15"
+__last_modification__ = "2023.01.25"
 
 
 ############################################################################
@@ -200,9 +201,9 @@ class PortScanner(object):
         return self.all_hosts()
 
     def load_from_file(self, file_path):
-        with open(file_path, 'r') as f:
-            assert(
-                    os.path.splitext(file_path)[-1].lower() == ".xml"
+        with open(file_path, "r") as f:
+            assert (
+                os.path.splitext(file_path)[-1].lower() == ".xml"
             ), f"Wrong file type for [file_path], should be a .xml [was {file_path}]"
             self._nmap_last_output = f.read()
             return self.analyse_nmap_xml_scan(nmap_xml_output=self._nmap_last_output)
@@ -458,17 +459,19 @@ class PortScanner(object):
             for dtrace in dhost.findall("trace"):
                 hops = []
                 for dhop in dtrace.findall("hop"):
-                    hops.append({
-                        "ip": dhop.get("ipaddr"),
-                        "ttl": dhop.get("ttl"),
-                        "rtt": dhop.get("rtt"),
-                        })
+                    hops.append(
+                        {
+                            "ip": dhop.get("ipaddr"),
+                            "ttl": dhop.get("ttl"),
+                            "rtt": dhop.get("rtt"),
+                        }
+                    )
                 scan_result["scan"][host]["trace"] = hops
             for dport in dhost.findall("ports/port"):
                 # protocol
                 proto = dport.get("protocol")
                 # port number converted as integer
-                port = int(dport.get("portid"))
+                port = dport.get("portid")
                 # state of the port
                 state = dport.find("state").get("state")
                 # reason
