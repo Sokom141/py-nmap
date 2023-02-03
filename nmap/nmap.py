@@ -63,8 +63,8 @@ from xml.etree import ElementTree as ET
 
 
 __author__ = "Alexandre Norman (norman@xael.org)"
-__version__ = "0.7.3"
-__last_modification__ = "2023.01.25"
+__version__ = "0.7.4"
+__last_modification__ = "2023.02.03"
 
 
 ############################################################################
@@ -620,6 +620,12 @@ class PortScanner(object):
                 type(host) is str
             ), f"Wrong type for [host], should be a string [was {type(host)}]"
         return self._scan_result["scan"][host]
+
+    def try_get_item(self, host):
+        """
+        Returns host detail if host is host is present otherwise returns `None`.
+        """
+        return self._scan_result["scan"].get(host)
 
     def all_hosts(self) -> List:
         """
